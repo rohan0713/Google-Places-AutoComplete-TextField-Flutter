@@ -1,4 +1,4 @@
-# google_places_flutter
+# google_location_autocomplete_textfield_flutter
 
 # Add dependency into pubspec.yml
 
@@ -6,8 +6,8 @@
 dependencies:
   flutter:
     sdk: flutter
-  google_places_flutter: <last-version>
-  
+  google_location_autocomplete_textfield_flutter: <last-version>
+
 ```  
 
 # Google AutoComplete TextField Widget code
@@ -63,7 +63,4 @@ dependencies:
 
 You can customize a text field input decoration and debounce time
 
-# Screenshorts
-
-<img src="sample.jpg" height="400">
 

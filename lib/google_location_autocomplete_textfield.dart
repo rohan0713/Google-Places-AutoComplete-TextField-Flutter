@@ -1,19 +1,17 @@
-library google_places_flutter;
+library google_location_autoComplete_textfield_flutter;
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:google_places_flutter/model/place_details.dart';
-import 'package:google_places_flutter/model/place_type.dart';
-import 'package:google_places_flutter/model/prediction.dart';
+import 'package:google_location_autocomplete_textfield_flutter/model/place_details.dart';
+import 'package:google_location_autocomplete_textfield_flutter/model/place_type.dart';
+import 'package:google_location_autocomplete_textfield_flutter/model/prediction.dart';
 
-import 'package:rxdart/subjects.dart';
 import 'package:dio/dio.dart';
 import 'package:rxdart/rxdart.dart';
 
 import 'DioErrorHandler.dart';
 
-class GooglePlaceAutoCompleteTextField extends StatefulWidget {
+class GoogleLocationAutoCompleteTextField extends StatefulWidget {
   InputDecoration inputDecoration;
   ItemClick? itemClick;
   GetPlaceDetailswWithLatLng? getPlaceDetailWithLatLng;
@@ -36,7 +34,7 @@ class GooglePlaceAutoCompleteTextField extends StatefulWidget {
   PlaceType? placeType;
   String? language;
 
-  GooglePlaceAutoCompleteTextField(
+  GoogleLocationAutoCompleteTextField(
       {required this.textEditingController,
       required this.googleAPIKey,
       this.debounceTime: 600,
@@ -62,7 +60,7 @@ class GooglePlaceAutoCompleteTextField extends StatefulWidget {
 }
 
 class _GooglePlaceAutoCompleteTextFieldState
-    extends State<GooglePlaceAutoCompleteTextField> {
+    extends State<GoogleLocationAutoCompleteTextField> {
   final subject = new PublishSubject<String>();
   OverlayEntry? _overlayEntry;
   List<Prediction> alPredictions = [];
@@ -73,6 +71,7 @@ class _GooglePlaceAutoCompleteTextFieldState
 
   bool isCrossBtn = true;
   late var _dio;
+    late FocusNode _focus;
 
   CancelToken? _cancelToken = CancelToken();
 
@@ -196,6 +195,15 @@ class _GooglePlaceAutoCompleteTextFieldState
         .distinct()
         .debounceTime(Duration(milliseconds: widget.debounceTime))
         .listen(textChanged);
+
+      _focus = widget.focusNode ?? FocusNode();
+      _focus.addListener(() {
+        if (!_focus.hasFocus) {
+          removeOverlay();
+        }
+      });
+    
+
   }
 
   textChanged(String text) async {
