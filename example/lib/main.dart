@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:google_location_autoComplete_textfield_flutter/google_location_autocomplete_textfield.dart';
-import 'package:google_location_autoComplete_textfield_flutter/model/place_type.dart';
-import 'package:google_location_autoComplete_textfield_flutter/model/prediction.dart';
+import 'package:google_location_autocomplete_textfield_flutter/google_location_autocomplete_textfield.dart';
 
 void main() => runApp(MyApp());
 
@@ -81,11 +79,11 @@ class _MyHomePageState extends State<MyHomePage> {
         debounceTime: 400,
         countries: ["in", "fr"],
         isLatLngRequired: true,
-        getPlaceDetailWithLatLng: (Prediction prediction) {
+        getPlaceDetailWithLatLng: (prediction) {
           print("placeDetails" + prediction.lat.toString());
         },
 
-        itemClick: (Prediction prediction) {
+        itemClick: (prediction) {
           controller.text = prediction.description ?? "";
           controller.selection = TextSelection.fromPosition(
               TextPosition(offset: prediction.description?.length ?? 0));
@@ -95,7 +93,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
 
         // OPTIONAL// If you want to customize list view item builder
-        itemBuilder: (context, index, Prediction prediction) {
+        itemBuilder: (context, index, prediction) {
           return Container(
             padding: EdgeInsets.all(10),
             child: Row(
