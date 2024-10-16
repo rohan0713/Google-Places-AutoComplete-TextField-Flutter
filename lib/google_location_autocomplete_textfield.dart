@@ -34,9 +34,12 @@ class GoogleLocationAutoCompleteTextField extends StatefulWidget {
   PlaceType? placeType;
   String? language;
   Widget Function(BuildContext context)? noOptionsFoundBuilder;
+  Widget Function(BuildContext context)? manualLocationBuilder;
+  void Function(BuildContext context)? manualLocationClick;
   Color? suffixIconColor;
   AssetImage? suffixIcon;
   void Function(String)? onChanged;
+  Color? dividerColor;
 
   GoogleLocationAutoCompleteTextField(
       {required this.textEditingController,
@@ -59,9 +62,12 @@ class GoogleLocationAutoCompleteTextField extends StatefulWidget {
       this.placeType,
       this.language = 'en',
       this.noOptionsFoundBuilder,
+      this.manualLocationBuilder,
+      this.manualLocationClick,
       this.suffixIconColor,
       this.suffixIcon,
-      this.onChanged});
+      this.onChanged,
+      this.dividerColor});
 
   @override
   _GooglePlaceAutoCompleteTextFieldState createState() =>
@@ -85,6 +91,7 @@ class _GooglePlaceAutoCompleteTextFieldState
   bool isCrossBtn = true;
   late var _dio;
   late FocusNode _focus;
+  bool showManualLocation = true;
 
   CancelToken? _cancelToken = CancelToken();
 
@@ -213,8 +220,10 @@ class _GooglePlaceAutoCompleteTextFieldState
       if (subscriptionResponse.predictions!.length > 0 &&
           (widget.textEditingController.text.toString().trim()).isNotEmpty) {
         alPredictions.addAll(subscriptionResponse.predictions!);
+        showManualLocation = true;
         noOptionsFound = false;
       } else {
+        showManualLocation = false;
         noOptionsFound = true;
       }
 
@@ -269,38 +278,74 @@ class _GooglePlaceAutoCompleteTextFieldState
                   link: this._layerLink,
                   offset: Offset(0.0, size.height + 5.0),
                   child: Material(
-                      child: noOptionsFound
-                          ? widget.noOptionsFoundBuilder!(context)
-                          : ListView.separated(
-                              padding: EdgeInsets.zero,
-                              shrinkWrap: true,
-                              itemCount: alPredictions.length,
-                              separatorBuilder: (context, pos) =>
-                                  widget.seperatedBuilder ?? SizedBox(),
-                              itemBuilder: (BuildContext context, int index) {
-                                return InkWell(
-                                  onTap: () {
-                                    var selectedData = alPredictions[index];
-                                    if (index < alPredictions.length) {
-                                      widget.itemClick!(selectedData);
+                    child: Container(
+                      constraints: BoxConstraints(maxHeight: 300),
+                      child: SingleChildScrollView(
+                          child: noOptionsFound
+                              ? widget.noOptionsFoundBuilder!(context)
+                              : Column(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    showManualLocation
+                                        ? InkWell(
+                                            onTap: () {
+                                              if (widget.manualLocationClick !=
+                                                  null) {
+                                                removeOverlay();
+                                                widget.manualLocationClick!(
+                                                    context);
+                                              }
+                                            },
+                                            child:
+                                                widget.manualLocationBuilder!(
+                                                    context),
+                                          )
+                                        : const SizedBox(),
+                                    showManualLocation
+                                        ? Container(
+                                            width: double.infinity,
+                                            height: 1.0,
+                                            color: widget.dividerColor,
+                                          )
+                                        : const SizedBox(),
+                                    ListView.separated(
+                                      padding: EdgeInsets.zero,
+                                      shrinkWrap: true,
+                                      physics: NeverScrollableScrollPhysics(),
+                                      itemCount: alPredictions.length,
+                                      separatorBuilder: (context, pos) =>
+                                          widget.seperatedBuilder ?? SizedBox(),
+                                      itemBuilder:
+                                          (BuildContext context, int index) {
+                                        return InkWell(
+                                          onTap: () {
+                                            var selectedData =
+                                                alPredictions[index];
+                                            if (index < alPredictions.length) {
+                                              widget.itemClick!(selectedData);
 
-                                      if (widget.isLatLngRequired) {
-                                        getPlaceDetailsFromPlaceId(
-                                            selectedData);
-                                      }
-                                      removeOverlay();
-                                    }
-                                  },
-                                  child: widget.itemBuilder != null
-                                      ? widget.itemBuilder!(
-                                          context, index, alPredictions[index])
-                                      : Container(
-                                          padding: EdgeInsets.all(10),
-                                          child: Text(alPredictions[index]
-                                              .description!)),
-                                );
-                              },
-                            )),
+                                              if (widget.isLatLngRequired) {
+                                                getPlaceDetailsFromPlaceId(
+                                                    selectedData);
+                                              }
+                                              removeOverlay();
+                                            }
+                                          },
+                                          child: widget.itemBuilder != null
+                                              ? widget.itemBuilder!(context,
+                                                  index, alPredictions[index])
+                                              : Container(
+                                                  padding: EdgeInsets.all(10),
+                                                  child: Text(
+                                                      alPredictions[index]
+                                                          .description!)),
+                                        );
+                                      },
+                                    )
+                                  ],
+                                )),
+                    ),
+                  ),
                 ),
               ));
     }
@@ -326,12 +371,14 @@ class _GooglePlaceAutoCompleteTextFieldState
 
   void hideOverlay() {
     if (this._overlayEntry != null) {
+      showManualLocation = false;
       removeOverlay();
       _isOverlayVisible = false;
     }
   }
 
   removeOverlay() {
+    showManualLocation = false;
     alPredictions.clear();
     this._overlayEntry = this._createOverlayEntry();
     _isOverlayVisible = false;
