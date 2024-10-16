@@ -9,3 +9,7 @@
 ## 0.1.3
 
 * Added Manually choose location functinality.
+
+## 0.1.4
+
+* fixed scrolling effect.

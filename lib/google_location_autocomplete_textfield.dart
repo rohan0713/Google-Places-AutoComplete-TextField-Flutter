@@ -279,7 +279,7 @@ class _GooglePlaceAutoCompleteTextFieldState
                   offset: Offset(0.0, size.height + 5.0),
                   child: Material(
                     child: Container(
-                      constraints: BoxConstraints(maxHeight: 300),
+                      constraints: BoxConstraints(maxHeight: 250),
                       child: SingleChildScrollView(
                           child: noOptionsFound
                               ? widget.noOptionsFoundBuilder!(context)
@@ -309,6 +309,7 @@ class _GooglePlaceAutoCompleteTextFieldState
                                           )
                                         : const SizedBox(),
                                     ListView.separated(
+                                      primary: false,
                                       padding: EdgeInsets.zero,
                                       shrinkWrap: true,
                                       physics: NeverScrollableScrollPhysics(),
