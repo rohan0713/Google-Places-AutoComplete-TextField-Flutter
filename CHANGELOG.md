@@ -13,3 +13,7 @@
 ## 0.1.4
 
 * fixed scrolling effect.
+
+## 0.1.5
+
+* added dropdown arrow change.

@@ -38,6 +38,7 @@ class GoogleLocationAutoCompleteTextField extends StatefulWidget {
   void Function(BuildContext context)? manualLocationClick;
   Color? suffixIconColor;
   AssetImage? suffixIcon;
+  AssetImage? suffixIconAlternate;
   void Function(String)? onChanged;
   Color? dividerColor;
 
@@ -66,6 +67,7 @@ class GoogleLocationAutoCompleteTextField extends StatefulWidget {
       this.manualLocationClick,
       this.suffixIconColor,
       this.suffixIcon,
+      this.suffixIconAlternate,
       this.onChanged,
       this.dividerColor});
 
@@ -92,6 +94,7 @@ class _GooglePlaceAutoCompleteTextFieldState
   late var _dio;
   late FocusNode _focus;
   bool showManualLocation = true;
+  bool showingPrediction = false;
 
   CancelToken? _cancelToken = CancelToken();
 
@@ -118,6 +121,9 @@ class _GooglePlaceAutoCompleteTextFieldState
                 decoration: widget.inputDecoration.copyWith(
                     suffixIcon: InkWell(
                   onTap: () {
+                    setState(() {
+                      showingPrediction = !showingPrediction;
+                    });
                     if (alPredictions.length == 0 &&
                         widget.textEditingController.text.trim() != '') {
                       getLocation(widget.textEditingController.text.trim());
@@ -130,7 +136,9 @@ class _GooglePlaceAutoCompleteTextFieldState
                       width: 16.0,
                       child: Center(
                         child: ImageIcon(
-                          widget.suffixIcon!,
+                          showingPrediction
+                              ? widget.suffixIconAlternate
+                              : widget.suffixIcon!,
                           color: widget.suffixIconColor,
                           size: 10.0,
                         ),
@@ -142,6 +150,9 @@ class _GooglePlaceAutoCompleteTextFieldState
                 onChanged: (string) {
                   subject.add(string);
                   if (widget.onChanged != null) {
+                    setState(() {
+                      showingPrediction = true;
+                    });
                     widget.onChanged!(string);
                   }
                   if (widget.isCrossBtnShown) {
@@ -211,6 +222,10 @@ class _GooglePlaceAutoCompleteTextFieldState
       if (text.length == 0) {
         alPredictions.clear();
         noOptionsFound = false;
+        showManualLocation = false;
+        setState(() {
+          showingPrediction = false;
+        });
         this._overlayEntry!.remove();
         return;
       }
@@ -320,6 +335,9 @@ class _GooglePlaceAutoCompleteTextFieldState
                                           (BuildContext context, int index) {
                                         return InkWell(
                                           onTap: () {
+                                            setState(() {
+                                              showingPrediction = false;
+                                            });
                                             var selectedData =
                                                 alPredictions[index];
                                             if (index < alPredictions.length) {
@@ -379,6 +397,9 @@ class _GooglePlaceAutoCompleteTextFieldState
   }
 
   removeOverlay() {
+    setState(() {
+      showingPrediction = false;
+    });
     showManualLocation = false;
     alPredictions.clear();
     this._overlayEntry = this._createOverlayEntry();
