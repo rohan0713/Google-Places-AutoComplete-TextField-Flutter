@@ -17,3 +17,7 @@
 ## 0.1.5
 
 * added dropdown arrow change.
+
+## 0.1.6
+
+* removed empty space from query.

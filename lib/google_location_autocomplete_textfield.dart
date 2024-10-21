@@ -273,7 +273,7 @@ class _GooglePlaceAutoCompleteTextFieldState
   }
 
   textChanged(String text) async {
-    widget.textEditingController.text = text.trim();
+    widget.textEditingController.text = text;
     getLocation(text);
   }
 
