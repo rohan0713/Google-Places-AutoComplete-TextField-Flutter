@@ -21,3 +21,7 @@
 ## 0.1.6
 
 * removed empty space from query.
+
+## 0.1.7
+
+* on tap outside feature.

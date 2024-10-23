@@ -40,6 +40,7 @@ class GoogleLocationAutoCompleteTextField extends StatefulWidget {
   AssetImage? suffixIcon;
   AssetImage? suffixIconAlternate;
   void Function(String)? onChanged;
+  void Function()? onTapOutside;
   Color? dividerColor;
 
   GoogleLocationAutoCompleteTextField(
@@ -69,6 +70,7 @@ class GoogleLocationAutoCompleteTextField extends StatefulWidget {
       this.suffixIcon,
       this.suffixIconAlternate,
       this.onChanged,
+      this.onTapOutside,
       this.dividerColor});
 
   @override
@@ -118,16 +120,25 @@ class _GooglePlaceAutoCompleteTextFieldState
           children: [
             Expanded(
               child: TextFormField(
+                onTapOutside:(PointerDownEvent? event){
+                  widget.onTapOutside?.call();
+                },
                 decoration: widget.inputDecoration.copyWith(
                     suffixIcon: InkWell(
                   onTap: () {
                     setState(() {
                       showingPrediction = !showingPrediction;
                     });
-                    if (alPredictions.length == 0 &&
-                        widget.textEditingController.text.trim() != '') {
+
+                    // if (alPredictions.length == 0 &&
+                    //     widget.textEditingController.text.trim() != '') {
+                    //   getLocation(widget.textEditingController.text.trim());
+                    // }
+                    if (widget.textEditingController.text.trim() != '') {
                       getLocation(widget.textEditingController.text.trim());
-                    } else {
+                    } else if (showingPrediction)
+                       getLocation("");
+                    else {
                       toggleSubject.add(null);
                     }
                   },
@@ -219,16 +230,16 @@ class _GooglePlaceAutoCompleteTextFieldState
       PlacesAutocompleteResponse subscriptionResponse =
           PlacesAutocompleteResponse.fromJson(response.data);
 
-      if (text.length == 0) {
-        alPredictions.clear();
-        noOptionsFound = false;
-        showManualLocation = false;
-        setState(() {
-          showingPrediction = false;
-        });
-        this._overlayEntry!.remove();
-        return;
-      }
+      // if (text.length == 0) {
+      //   alPredictions.clear();
+      //   noOptionsFound = false;
+      //   showManualLocation = false;
+      //   setState(() {
+      //     showingPrediction = false;
+      //   });
+      //   this._overlayEntry!.remove();
+      //   return;
+      // }
 
       isSearched = false;
       alPredictions.clear();
@@ -238,10 +249,12 @@ class _GooglePlaceAutoCompleteTextFieldState
         showManualLocation = true;
         noOptionsFound = false;
       } else {
-        showManualLocation = false;
+        showManualLocation = true;
         noOptionsFound = true;
-      }
 
+        // showManualLocation = false;
+        // noOptionsFound = true;
+      }
       this._overlayEntry = null;
       this._overlayEntry = this._createOverlayEntry();
       Overlay.of(context)!.insert(this._overlayEntry!);
@@ -296,73 +309,63 @@ class _GooglePlaceAutoCompleteTextFieldState
                     child: Container(
                       constraints: BoxConstraints(maxHeight: 250),
                       child: SingleChildScrollView(
-                          child: noOptionsFound
-                              ? widget.noOptionsFoundBuilder!(context)
-                              : Column(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    showManualLocation
-                                        ? InkWell(
-                                            onTap: () {
-                                              if (widget.manualLocationClick !=
-                                                  null) {
-                                                removeOverlay();
-                                                widget.manualLocationClick!(
-                                                    context);
-                                              }
-                                            },
-                                            child:
-                                                widget.manualLocationBuilder!(
-                                                    context),
-                                          )
-                                        : const SizedBox(),
-                                    showManualLocation
-                                        ? Container(
-                                            width: double.infinity,
-                                            height: 1.0,
-                                            color: widget.dividerColor,
-                                          )
-                                        : const SizedBox(),
-                                    ListView.separated(
-                                      primary: false,
-                                      padding: EdgeInsets.zero,
-                                      shrinkWrap: true,
-                                      physics: NeverScrollableScrollPhysics(),
-                                      itemCount: alPredictions.length,
-                                      separatorBuilder: (context, pos) =>
-                                          widget.seperatedBuilder ?? SizedBox(),
-                                      itemBuilder:
-                                          (BuildContext context, int index) {
-                                        return InkWell(
-                                          onTap: () {
-                                            setState(() {
-                                              showingPrediction = false;
-                                            });
-                                            var selectedData =
-                                                alPredictions[index];
-                                            if (index < alPredictions.length) {
-                                              widget.itemClick!(selectedData);
+                          child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          showManualLocation
+                              ? InkWell(
+                                  onTap: () {
+                                    if (widget.manualLocationClick != null) {
+                                      removeOverlay();
+                                      widget.manualLocationClick!(context);
+                                    }
+                                  },
+                                  child: widget.manualLocationBuilder!(context),
+                                )
+                              : const SizedBox(),
+                          showManualLocation
+                              ? Container(
+                                  width: double.infinity,
+                                  height: 1.0,
+                                  color: widget.dividerColor,
+                                )
+                              : const SizedBox(),
+                          ListView.separated(
+                            primary: false,
+                            padding: EdgeInsets.zero,
+                            shrinkWrap: true,
+                            physics: NeverScrollableScrollPhysics(),
+                            itemCount: alPredictions.length,
+                            separatorBuilder: (context, pos) =>
+                                widget.seperatedBuilder ?? SizedBox(),
+                            itemBuilder: (BuildContext context, int index) {
+                              return InkWell(
+                                onTap: () {
+                                  setState(() {
+                                    showingPrediction = false;
+                                  });
+                                  var selectedData = alPredictions[index];
+                                  if (index < alPredictions.length) {
+                                    widget.itemClick!(selectedData);
 
-                                              if (widget.isLatLngRequired) {
-                                                getPlaceDetailsFromPlaceId(
-                                                    selectedData);
-                                              }
-                                              removeOverlay();
-                                            }
-                                          },
-                                          child: widget.itemBuilder != null
-                                              ? widget.itemBuilder!(context,
-                                                  index, alPredictions[index])
-                                              : Container(
-                                                  padding: EdgeInsets.all(10),
-                                                  child: Text(
-                                                      alPredictions[index]
-                                                          .description!)),
-                                        );
-                                      },
-                                    )
-                                  ],
-                                )),
+                                    if (widget.isLatLngRequired) {
+                                      getPlaceDetailsFromPlaceId(selectedData);
+                                    }
+                                    removeOverlay();
+                                  }
+                                },
+                                child: widget.itemBuilder != null
+                                    ? widget.itemBuilder!(
+                                        context, index, alPredictions[index])
+                                    : Container(
+                                        padding: EdgeInsets.all(10),
+                                        child: Text(
+                                            alPredictions[index].description!)),
+                              );
+                            },
+                          )
+                        ],
+                      )),
                     ),
                   ),
                 ),
@@ -371,13 +374,13 @@ class _GooglePlaceAutoCompleteTextFieldState
   }
 
   void toggleOverlay() {
-    if (alPredictions.isNotEmpty) {
-      if (_isOverlayVisible) {
-        hideOverlay();
-      } else {
-        showOverlay();
-      }
+    // if (alPredictions.isNotEmpty) {
+    if (_isOverlayVisible) {
+      hideOverlay();
+    } else {
+      showOverlay();
     }
+    // }
   }
 
   void showOverlay() {
