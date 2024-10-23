@@ -120,7 +120,7 @@ class _GooglePlaceAutoCompleteTextFieldState
           children: [
             Expanded(
               child: TextFormField(
-                onTapOutside:(PointerDownEvent? event){
+                onTapOutside: (PointerDownEvent? event) {
                   widget.onTapOutside?.call();
                 },
                 decoration: widget.inputDecoration.copyWith(
@@ -134,10 +134,10 @@ class _GooglePlaceAutoCompleteTextFieldState
                     //     widget.textEditingController.text.trim() != '') {
                     //   getLocation(widget.textEditingController.text.trim());
                     // }
-                    if (widget.textEditingController.text.trim() != '') {
+                    if (widget.textEditingController.text.trim() != '' && showingPrediction) {
                       getLocation(widget.textEditingController.text.trim());
                     } else if (showingPrediction)
-                       getLocation("");
+                      getLocation("");
                     else {
                       toggleSubject.add(null);
                     }
@@ -280,7 +280,12 @@ class _GooglePlaceAutoCompleteTextFieldState
     _focus = widget.focusNode ?? FocusNode();
     _focus.addListener(() {
       if (!_focus.hasFocus) {
-        hideOverlay();
+        if (noOptionsFound) {
+          hideOverlay();
+          widget.onTapOutside?.call();
+        } else {
+          hideOverlay();
+        }
       }
     });
   }

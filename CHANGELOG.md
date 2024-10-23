@@ -25,3 +25,7 @@
 ## 0.1.7
 
 * on tap outside feature.
+
+## 0.1.8
+
+* dropdown state issue.
