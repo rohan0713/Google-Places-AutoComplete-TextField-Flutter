@@ -120,9 +120,6 @@ class _GooglePlaceAutoCompleteTextFieldState
           children: [
             Expanded(
               child: TextFormField(
-                onTapOutside: (PointerDownEvent? event) {
-                  widget.onTapOutside?.call();
-                },
                 decoration: widget.inputDecoration.copyWith(
                     suffixIcon: InkWell(
                   onTap: () {

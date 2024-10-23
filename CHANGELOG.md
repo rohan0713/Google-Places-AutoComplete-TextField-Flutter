@@ -29,3 +29,7 @@
 ## 0.1.8
 
 * dropdown state issue.
+
+## 0.1.9
+
+* removed tapOutside.
