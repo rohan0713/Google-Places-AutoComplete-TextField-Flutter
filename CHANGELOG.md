@@ -33,3 +33,11 @@
 ## 0.1.9
 
 * removed tapOutside.
+
+## 0.1.10
+
+* removed snackbar.
+
+## 0.2.0
+
+* fixed nullable bugs

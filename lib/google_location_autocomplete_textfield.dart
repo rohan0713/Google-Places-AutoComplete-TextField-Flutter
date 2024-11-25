@@ -131,7 +131,8 @@ class _GooglePlaceAutoCompleteTextFieldState
                     //     widget.textEditingController.text.trim() != '') {
                     //   getLocation(widget.textEditingController.text.trim());
                     // }
-                    if (widget.textEditingController.text.trim() != '' && showingPrediction) {
+                    if (widget.textEditingController.text.trim() != '' &&
+                        showingPrediction) {
                       getLocation(widget.textEditingController.text.trim());
                     } else if (showingPrediction)
                       getLocation("");
@@ -146,7 +147,7 @@ class _GooglePlaceAutoCompleteTextFieldState
                         child: ImageIcon(
                           showingPrediction
                               ? widget.suffixIconAlternate
-                              : widget.suffixIcon!,
+                              : widget.suffixIcon,
                           color: widget.suffixIconColor,
                           size: 10.0,
                         ),
@@ -257,7 +258,7 @@ class _GooglePlaceAutoCompleteTextFieldState
       Overlay.of(context)!.insert(this._overlayEntry!);
     } catch (e) {
       var errorHandler = ErrorHandler.internal().handleError(e);
-      _showSnackBar("${errorHandler.message}");
+      // _showSnackBar("${errorHandler.message}");
     }
   }
 
@@ -322,7 +323,10 @@ class _GooglePlaceAutoCompleteTextFieldState
                                       widget.manualLocationClick!(context);
                                     }
                                   },
-                                  child: widget.manualLocationBuilder!(context),
+                                  child: widget.manualLocationBuilder != null
+                                      ? widget.manualLocationBuilder
+                                          ?.call(context)
+                                      : const SizedBox(),
                                 )
                               : const SizedBox(),
                           showManualLocation
@@ -432,7 +436,7 @@ class _GooglePlaceAutoCompleteTextFieldState
       widget.getPlaceDetailWithLatLng!(prediction);
     } catch (e) {
       var errorHandler = ErrorHandler.internal().handleError(e);
-      _showSnackBar("${errorHandler.message}");
+      // _showSnackBar("${errorHandler.message}");
     }
   }
 
